@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HEAR ME OUT</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+  /* =====================
+     CSS VARIABLES
+     Change these to retheme the whole app
+  ===================== */
+  :root {
+    /* Light theme with colorful accents */
+    --bg:        #ffffff;
+    --surface:   #f7f8ff;
+    --surface2:  #edf1ff;
+    --border:    #d7ddf0;
+    --text:      #171a28;
+    --text-mid:  #4d5573;
+    --text-dim:  #7d86a6;
+    --accent:    #5b4dff;
+    --accent2:   #ff4f9a;
+    --radius:    12px;
+    --nav-h:     64px;
+  }
+
+  /* Page-specific accent colors */
+  body[data-page="feed"] {
+    --accent:  #ff4f9a;
+    --accent2: #5b4dff;
+  }
+
+  body[data-page="discover"] {
+    --accent:  #2e9bff;
+    --accent2: #00b894;
+  }
+
+  body[data-page="review"] {
+    --accent:  #ff8a00;
+    --accent2: #ff4d6d;
+  }
+
+  body[data-page="profile"] {
+    --accent:  #8e44ff;
+    --accent2: #2ec5ff;
+  }
+
+  /* =====================
+     RESET & BASE
+  ===================== */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    padding-bottom: calc(var(--nav-h) + 16px);
+  }
+
+  img { display: block; max-width: 100%; }
+  button { cursor: pointer; border: none; background: none; font-family: inherit; color: inherit; }
+  input, textarea { font-family: inherit; }
+
+  /* =====================
+     TOP HEADER
+  ===================== */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 20px 0;
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 100;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 16px;
+  }
+
+  .logo {
+    font-size: 60px;
+    font-weight: 800;
+    font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+    letter-spacing: -0.5px;
+    color: var(--text);
+  }
+
+  .logo span { color: #ff2ea6; }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .notif-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .notif-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    position: relative;
+  }
+
+  .notif-count {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: var(--accent2);
+    color: var(--bg);
+    font-size: 10px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    letter-spacing: 0;
+  }
+
+  .notif-panel {
+    position: absolute;
+    right: 0;
+    top: 44px;
+    width: 280px;
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: 0 14px 40px rgba(0,0,0,0.08);
+    padding: 10px 0;
+    z-index: 10001;
+    display: none;
+  }
+
+  .notif-wrap.open .notif-panel {
+    display: block;
+  }
+
+  .notif-title {
+    padding: 0 14px 8px 14px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    color: var(--text);
+  }
+
+  .notif-item {
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--text);
+    border-top: 1px solid #edf1ff;
+  }
+
+  .notif-item:first-of-type {
+    border-top: none;
+  }
+
+  .notif-item strong {
+    color: var(--accent);
+    font-weight: 900;
+  }
+
+  .notif-mark {
+    width: 100%;
+    border: none;
+    border-radius: 0 0 14px 14px;
+    margin-top: 6px;
+    padding: 10px 14px;
+    font-size: 12px;
+    font-weight: 800;
+    background: var(--surface);
+    color: var(--accent);
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .notif-mark:hover { opacity: 0.85; }
+
+  .avatar-small {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--bg);
+    flex-shrink: 0;
+  }
+
+  /* =====================
+     BOTTOM NAV
+  ===================== */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: var(--nav-h);
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    display: flex;
+    z-index: 200;
+  }
+
+  .nav-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    transition: color 0.2s;
+  }
+
+  .nav-btn.active { color: var(--accent); }
+  .nav-btn:hover { color: var(--text-mid); }
+
+  .nav-icon { font-size: 20px; line-height: 1; }
+
+  /* =====================
+     PAGES — only active page shows
+  ===================== */
+  .page { display: none; padding: 20px; }
+  .page.active { display: block; }
+
+  /* =====================
+     SECTION LABELS
+  ===================== */
+  .section-label {
+    font-size: 15px;
+    font-weight: 700;
+    font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+
+  /* =====================
+     CARDS
+  ===================== */
+  .card {
+    background: linear-gradient(135deg, #ffffff 0%, #f3efff 100%);
+    border: 1px solid #d3c8ff;
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+
+  /* Album art placeholder */
+  .album-art {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 8px;
+    background: var(--surface2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
+  }
+
+  .album-art-small {
+    width: 52px;
+    height: 52px;
+    border-radius: 6px;
+    background: var(--surface2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+    border: 1px solid var(--border);
+  }
+
+  /* =====================
+     STARS
+  ===================== */
+  .stars {
+    display: flex;
+    gap: 3px;
+    margin-bottom: 6px;
+  }
+
+  .star {
+    font-size: 14px;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: color 0.15s;
+  }
+
+  .star.filled { color: var(--accent); }
+  .star:hover { color: var(--accent); }
+
+  /* =====================
+     FEED PAGE
+  ===================== */
+  .feed-item {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .feed-meta {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .feed-user {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 2px;
+  }
+
+  .feed-album {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .feed-artist {
+    font-size: 12px;
+    color: var(--text-mid);
+    margin-bottom: 6px;
+  }
+
+  .feed-review {
+    font-family: 'Lora', serif;
+    font-style: italic;
+    font-size: 13px;
+    color: var(--text-mid);
+    line-height: 1.6;
+    margin-top: 8px;
+  }
+
+  .feed-actions {
+    display: flex;
+    gap: 16px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+
+  .action-btn {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: color 0.2s;
+  }
+
+  .action-btn:hover { color: var(--accent); }
+  .action-btn span { font-size: 15px; }
+
+  /* =====================
+     DISCOVER PAGE
+  ===================== */
+  .discover-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .discover-card {
+    background: linear-gradient(135deg, #fff9ee 0%, #eef5ff 100%);
+    border: 1px solid #c8daff;
+    border-radius: var(--radius);
+    padding: 12px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+
+  .discover-card:hover { border-color: var(--accent); }
+
+  .discover-title {
+    font-size: 13px;
+    font-weight: 700;
+    font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+    margin-top: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .discover-artist {
+    font-size: 11px;
+    color: var(--text-mid);
+    margin-top: 2px;
+  }
+
+  .discover-rating {
+    font-size: 11px;
+    color: var(--accent);
+    margin-top: 4px;
+    font-weight: 700;
+  }
+
+  /* =====================
+     REVIEW PAGE
+  ===================== */
+  .review-form { display: flex; flex-direction: column; gap: 16px; }
+
+  .form-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-mid);
+    margin-bottom: 6px;
+  }
+
+  .form-input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    color: var(--text);
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .form-input:focus { border-color: var(--accent); }
+
+  .form-textarea {
+    resize: vertical;
+    min-height: 100px;
+    line-height: 1.6;
+  }
+
+  .star-picker { display: flex; gap: 6px; }
+
+  .star-pick {
+    font-size: 28px;
+    cursor: pointer;
+    color: var(--text-dim);
+    transition: color 0.15s, transform 0.1s;
+  }
+
+  .star-pick.filled { color: var(--accent); }
+  .star-pick:hover { color: var(--accent); transform: scale(1.15); }
+
+  .submit-btn {
+    background: var(--accent);
+    color: var(--bg);
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 14px;
+    border-radius: 8px;
+    transition: opacity 0.2s;
+    width: 100%;
+  }
+
+  .submit-btn:hover { opacity: 0.85; }
+
+  /* =====================
+     PROFILE PAGE
+  ===================== */
+  .profile-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .avatar-large {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--bg);
+    flex-shrink: 0;
+  }
+
+  .profile-name {
+    font-size: 27px;
+    font-weight: 700;
+    font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+  }
+  .profile-handle { font-size: 13px; color: var(--text-mid); margin-top: 2px; }
+
+  .profile-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+
+  .stat-cell {
+    background: linear-gradient(135deg, #effdff 0%, #f7efff 100%);
+    padding: 14px;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--accent);
+  }
+
+  .stat-label {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-mid);
+    margin-top: 2px;
+  }
+
+  .favorites-row {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    margin-bottom: 24px;
+    scrollbar-width: none;
+  }
+
+  .favorites-row::-webkit-scrollbar { display: none; }
+
+  .fav-item {
+    flex-shrink: 0;
+    width: 80px;
+  }
+
+  .fav-art {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    background: var(--surface2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    border: 1px solid var(--border);
+    margin-bottom: 6px;
+  }
+
+  .fav-title {
+    font-size: 10px;
+    font-weight: 700;
+    font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .fav-artist {
+    font-size: 9px;
+    color: var(--text-mid);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* =====================
+     UTILITY
+  ===================== */
+  .mt-8  { margin-top: 8px; }
+  .mt-16 { margin-top: 16px; }
+  .mt-24 { margin-top: 24px; }
+
+  .tag {
+    display: inline-block;
+    background: #ffffff;
+    border: 1px solid var(--accent);
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-right: 6px;
+    margin-bottom: 6px;
+  }
+
+  /* Success toast */
+  .toast {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--accent);
+    color: var(--bg);
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    opacity: 0;
+    transition: all 0.3s;
+    pointer-events: none;
+    z-index: 300;
+    white-space: nowrap;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* =====================
+     SPLASH (first screen)
+  ===================== */
+  .splash-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 24px;
+    background: linear-gradient(160deg, #ffffff 0%, #f3efff 45%, #eef5ff 100%);
+    cursor: pointer;
+    transition: opacity 0.45s ease, visibility 0.45s ease;
+  }
+
+  html.splash-dismissed .splash-screen {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .splash-inner {
+    max-width: 28rem;
+  }
+
+  .splash-title {
+    font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+    font-size: clamp(2.25rem, 10vw, 3.75rem);
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    color: var(--text);
+    line-height: 1.1;
+  }
+
+  .splash-title .splash-pink {
+    color: #ff2ea6;
+  }
+
+  .splash-tagline {
+    margin-top: 1.25rem;
+    font-family: 'Lora', serif;
+    font-size: clamp(1.05rem, 3.5vw, 1.35rem);
+    font-style: italic;
+    color: var(--text-mid);
+    line-height: 1.5;
+  }
+
+  .splash-hint {
+    margin-top: 2rem;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+</style>
+</head>
+<body data-page="feed">
+
+<div id="splash" class="splash-screen" role="button" tabindex="0" aria-label="Enter site">
+  <div class="splash-inner">
+    <h1 class="splash-title">HEAR <span class="splash-pink">ME OUT</span></h1>
+    <p class="splash-tagline">bringing back community...</p>
+    <p class="splash-hint">Click to enter</p>
+  </div>
+</div>
+
+<!-- =====================
+     HEADER
+===================== -->
+<header class="header">
+  <div class="logo">Hear<span> me out</span></div>
+  <div class="header-right">
+    <div class="notif-wrap" id="notifWrap">
+      <button class="notif-btn" type="button" onclick="toggleNotifications()" aria-label="Notifications">
+        🔔
+        <span class="notif-count" id="notifCount">3</span>
+      </button>
+      <div class="notif-panel" id="notifPanel" aria-label="Notifications panel">
+        <div class="notif-title">Updates</div>
+        <div class="notif-item">💬 <strong>@danielc</strong> commented on your review</div>
+        <div class="notif-item">♥ <strong>@soph.listens</strong> liked your review</div>
+        <div class="notif-item">✦ <strong>@rem.ears</strong> became your friend</div>
+        <button class="notif-mark" type="button" onclick="markNotificationsRead()">Mark as read</button>
+      </div>
+    </div>
+    <div class="avatar-small">AG</div>
+  </div>
+</header>
+
+<!-- =====================
+     PAGE: FEED
+===================== -->
+<div class="page active" id="page-feed">
+
+  <div class="section-label">Friends Activity</div>
+
+  <!-- Feed item 1 -->
+  <div class="card">
+    <div class="feed-item">
+      <div class="album-art-small">🎸</div>
+      <div class="feed-meta">
+        <div class="feed-user">@danielc</div>
+        <div class="feed-album">Rated: Bright Future</div>
+        <div class="feed-artist">Adrianne Lenker</div>
+        <div class="stars">
+          <span class="star filled">★</span>
+          <span class="star filled">★</span>
+          <span class="star filled">★</span>
+          <span class="star filled">★</span>
+          <span class="star filled">★</span>
+        </div>
+      </div>
+    </div>
+    <div class="feed-review">"One of the most honest records I've heard in years. Every song feels like a letter."</div>
+    <div class="feed-actions">
+      <button class="action-btn" onclick="handleLike(this)"><span>♡</span> 12</button>
+      <button class="action-btn"><span>💬</span> Reply</button>
+      <button class="action-btn"><span>＋</span> Save</button>
+    </div>
+  </div>
+
+  <!-- Feed item 2 -->
+  <div class="card">
+    <div class="feed-item">
+      <div class="album-art-small">🎹</div>
+      <div class="feed-meta">
+        <div class="feed-user">@soph.listens</div>
+        <div class="feed-album">Rated: Afrique Victime</div>
+        <div class="feed-artist">Mdou Moctar</div>
+        <div class="stars">
+          <span class="star filled">★</span>
+          <span class="star filled">★</span>
+          <span class="star filled">★</span>
+          <span class="star filled">★</span>
+          <span class="star">★</span>
+        </div>
+      </div>
+    </div>
+    <div class="feed-review">"Heard this at a swap meet last month. Changed what I thought guitar could sound like."</div>
+    <div class="feed-actions">
+      <button class="action-btn" onclick="handleLike(this)"><span>♡</span> 8</button>
+      <button class="action-btn"><span>💬</span> Reply</button>
+      <button class="action-btn"><span>＋</span> Save</button>
+    </div>
+  </div>
+
+  <!-- Feed item 3 -->
+  <div class="card">
+    <div class="feed-item">
+      <div class="album-art-small">🎷</div>
+      <div class="feed-meta">
+        <div class="feed-user">@rem.ears</div>
+        <div class="feed-album">Rated: Space 1.8</div>
+        <div class="feed-artist">Nala Sinephro</div>
+        <div class="stars">
+          <span class="star filled">★</span>
+          <span class="star filled">★</span>
+          <span class="star filled">★</span>
+          <span class="star filled">★</span>
+          <span class="star filled">★</span>
+        </div>
+      </div>
+    </div>
+    <div class="feed-review">"Put this on when you need to feel less alone. It works every time."</div>
+    <div class="feed-actions">
+      <button class="action-btn" onclick="handleLike(this)"><span>♡</span> 24</button>
+      <button class="action-btn"><span>💬</span> Reply</button>
+      <button class="action-btn"><span>＋</span> Save</button>
+    </div>
+  </div>
+
+  <div class="section-label">Recent in your communities</div>
+  <div>
+    <span class="tag">Brooklyn Scene</span>
+    <span class="tag">NYC Jazz</span>
+    <span class="tag">Protest Music &amp; Activism</span>
+    <span class="tag">Late Night Listeners</span>
+    <span class="tag">Vinyl Only Listeners</span>
+  </div>
+
+  <div class="section-label mt-8">Tags you follow</div>
+  <div>
+    <span class="tag">Rock</span>
+    <span class="tag">Jazz</span>
+    <span class="tag">Indie</span>
+    <span class="tag">Electronic</span>
+    <span class="tag">Protest</span>
+  </div>
+
+</div>
+
+<!-- =====================
+     PAGE: DISCOVER
+===================== -->
+<div class="page" id="page-discover">
+
+  <div class="section-label">Trending in Your Community</div>
+
+  <div class="discover-grid">
+    <div class="discover-card" onclick="goToReview('Bright Future', 'Adrianne Lenker')">
+      <div class="album-art" style="font-size:32px;">🎸</div>
+      <div class="discover-title">Bright Future</div>
+      <div class="discover-artist">Adrianne Lenker</div>
+      <div class="discover-rating">★ 4.8 · 34 reviews</div>
+    </div>
+    <div class="discover-card" onclick="goToReview('Space 1.8', 'Nala Sinephro')">
+      <div class="album-art" style="font-size:32px;">🎷</div>
+      <div class="discover-title">Space 1.8</div>
+      <div class="discover-artist">Nala Sinephro</div>
+      <div class="discover-rating">★ 4.9 · 28 reviews</div>
+    </div>
+    <div class="discover-card" onclick="goToReview('Afrique Victime', 'Mdou Moctar')">
+      <div class="album-art" style="font-size:32px;">🎹</div>
+      <div class="discover-title">Afrique Victime</div>
+      <div class="discover-artist">Mdou Moctar</div>
+      <div class="discover-rating">★ 4.7 · 19 reviews</div>
+    </div>
+    <div class="discover-card" onclick="goToReview('Gold', 'Alabaster dePlume')">
+      <div class="album-art" style="font-size:32px;">🎺</div>
+      <div class="discover-title">Gold</div>
+      <div class="discover-artist">Alabaster dePlume</div>
+      <div class="discover-rating">★ 4.6 · 11 reviews</div>
+    </div>
+  </div>
+
+  <div class="section-label mt-8">Browse by genere</div>
+  <div>
+    <span class="tag">Rock</span>
+    <span class="tag">Hip-Hop</span>
+    <span class="tag">R&B</span>
+    <span class="tag">Pop</span>
+    <span class="tag">Jazz</span>
+    <span class="tag">Classical</span>
+    <span class="tag">Indie</span>
+    <span class="tag">Electronic</span>
+  </div>
+
+</div>
+
+<!-- =====================
+     PAGE: REVIEW
+===================== -->
+<div class="page" id="page-review">
+
+  <div class="section-label">Write a Review</div>
+
+  <div class="review-form">
+
+    <div>
+      <div class="form-label">Album Name</div>
+      <input class="form-input" id="input-album" type="text" placeholder="e.g. Bright Future">
+    </div>
+
+    <div>
+      <div class="form-label">Artist</div>
+      <input class="form-input" id="input-artist" type="text" placeholder="e.g. Adrianne Lenker">
+    </div>
+
+    <div>
+      <div class="form-label">Your Rating</div>
+      <div class="star-picker" id="star-picker">
+        <span class="star-pick" data-val="1">★</span>
+        <span class="star-pick" data-val="2">★</span>
+        <span class="star-pick" data-val="3">★</span>
+        <span class="star-pick" data-val="4">★</span>
+        <span class="star-pick" data-val="5">★</span>
+      </div>
+    </div>
+
+    <div>
+      <div class="form-label">Your Review</div>
+      <textarea class="form-input form-textarea" id="input-review" placeholder="What did this album mean to you? How did it make you feel? Who recommended it to you?"></textarea>
+    </div>
+
+    <div>
+      <div class="form-label">How did you find this album?</div>
+      <input class="form-input" id="input-source" type="text" placeholder="e.g. A friend, a show, a swap meet...">
+    </div>
+
+    <button class="submit-btn" onclick="submitReview()">Post Review</button>
+
+  </div>
+
+</div>
+
+<!-- =====================
+     PAGE: PROFILE
+===================== -->
+<div class="page" id="page-profile">
+
+  <div class="profile-header">
+    <div class="avatar-large">AG</div>
+    <div>
+      <div class="profile-name">Amelia Gandolfi</div>
+      <div class="profile-handle">@amelia.gandolfi · Brooklyn, NY</div>
+    </div>
+  </div>
+
+  <div class="profile-stats">
+    <div class="stat-cell">
+      <div class="stat-num">47</div>
+      <div class="stat-label">Reviews</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-num">520</div>
+      <div class="stat-label">Friends</div>
+    </div>
+  </div>
+
+  <div class="section-label">Favorite Albums</div>
+  <div class="favorites-row">
+    <div class="fav-item">
+      <div class="fav-art">🎸</div>
+      <div class="fav-title">Bright Future</div>
+      <div class="fav-artist">A. Lenker</div>
+    </div>
+    <div class="fav-item">
+      <div class="fav-art">🎷</div>
+      <div class="fav-title">Space 1.8</div>
+      <div class="fav-artist">N. Sinephro</div>
+    </div>
+    <div class="fav-item">
+      <div class="fav-art">🎹</div>
+      <div class="fav-title">Afrique Victime</div>
+      <div class="fav-artist">Mdou Moctar</div>
+    </div>
+    <div class="fav-item">
+      <div class="fav-art">🎺</div>
+      <div class="fav-title">Gold</div>
+      <div class="fav-artist">A. dePlume</div>
+    </div>
+    <div class="fav-item">
+      <div class="fav-art">＋</div>
+      <div class="fav-title">Add More</div>
+      <div class="fav-artist"> </div>
+    </div>
+  </div>
+
+  <div class="section-label">Communities</div>
+  <div>
+    <span class="tag">Brooklyn Scene</span>
+    <span class="tag">NYC Jazz</span>
+    <span class="tag">Protest Music &amp; Activism</span>
+    <span class="tag">Late Night Listeners</span>
+    <span class="tag">Vinyl Only Listeners</span>
+  </div>
+
+  <div class="section-label">Recent Reviews</div>
+
+  <div class="card">
+    <div class="feed-item">
+      <div class="album-art-small">🎸</div>
+      <div class="feed-meta">
+        <div class="feed-album">Bright Future</div>
+        <div class="feed-artist">Adrianne Lenker</div>
+        <div class="stars">
+          <span class="star filled">★</span>
+          <span class="star filled">★</span>
+          <span class="star filled">★</span>
+          <span class="star filled">★</span>
+          <span class="star filled">★</span>
+        </div>
+        <div class="feed-review">"Someone handed me this at a swap meet. I cried on the subway home."</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- =====================
+     BOTTOM NAV
+===================== -->
+<nav class="bottom-nav">
+  <button class="nav-btn active" onclick="showPage('feed', this)">
+    <span class="nav-icon">⌂</span>
+    Feed
+  </button>
+  <button class="nav-btn" onclick="showPage('discover', this)">
+    <span class="nav-icon">◎</span>
+    Discover
+  </button>
+  <button class="nav-btn" onclick="showPage('review', this)">
+    <span class="nav-icon">✦</span>
+    Review
+  </button>
+  <button class="nav-btn" onclick="showPage('profile', this)">
+    <span class="nav-icon">○</span>
+    Profile
+  </button>
+</nav>
+
+<!-- Toast notification -->
+<div class="toast" id="toast"></div>
+
+<!-- =====================
+     JAVASCRIPT
+===================== -->
+<script>
+
+  // ----------------------------
+  // SPLASH SCREEN
+  // ----------------------------
+  function dismissSplash() {
+    document.documentElement.classList.add('splash-dismissed');
+  }
+
+  (function initSplash() {
+    const splash = document.getElementById('splash');
+    if (!splash) return;
+    splash.addEventListener('click', dismissSplash);
+    splash.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        dismissSplash();
+      }
+    });
+  })();
+
+  // ----------------------------
+  // NOTIFICATIONS TAB
+  // ----------------------------
+  function toggleNotifications() {
+    const wrap = document.getElementById('notifWrap');
+    if (!wrap) return;
+    wrap.classList.toggle('open');
+  }
+
+  function markNotificationsRead() {
+    const count = document.getElementById('notifCount');
+    if (count) {
+      count.textContent = '0';
+      count.style.display = 'none';
+    }
+    const wrap = document.getElementById('notifWrap');
+    if (wrap) wrap.classList.remove('open');
+  }
+
+  (function initNotificationsClose() {
+    const wrap = document.getElementById('notifWrap');
+    if (!wrap) return;
+    document.addEventListener('click', function (e) {
+      if (!wrap.contains(e.target)) wrap.classList.remove('open');
+    });
+  })();
+
+  // ----------------------------
+  // PAGE NAVIGATION
+  // Switch between the 4 pages
+  // ----------------------------
+  function showPage(pageName, btnEl) {
+    // Hide all pages
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    // Remove active from all nav buttons
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    // Show the chosen page
+    document.getElementById('page-' + pageName).classList.add('active');
+    // Update accent colors for the active page
+    document.body.setAttribute('data-page', pageName);
+    // Highlight the chosen nav button
+    btnEl.classList.add('active');
+    // Scroll to top
+    window.scrollTo(0, 0);
+  }
+
+  // ----------------------------
+  // GO TO REVIEW PAGE
+  // Pre-fills album + artist from Discover
+  // ----------------------------
+  function goToReview(album, artist) {
+    document.getElementById('input-album').value = album;
+    document.getElementById('input-artist').value = artist;
+    // Manually trigger the review nav button
+    const reviewBtn = document.querySelectorAll('.nav-btn')[2];
+    showPage('review', reviewBtn);
+  }
+
+  // ----------------------------
+  // STAR RATING PICKER
+  // Click a star to set your rating
+  // ----------------------------
+  let currentRating = 0;
+
+  document.querySelectorAll('.star-pick').forEach(star => {
+    star.addEventListener('click', function() {
+      currentRating = parseInt(this.dataset.val);
+      // Update visual state
+      document.querySelectorAll('.star-pick').forEach((s, i) => {
+        s.classList.toggle('filled', i < currentRating);
+      });
+    });
+  });
+
+  // ----------------------------
+  // SUBMIT REVIEW
+  // Basic validation + toast
+  // ----------------------------
+  function submitReview() {
+    const album  = document.getElementById('input-album').value.trim();
+    const artist = document.getElementById('input-artist').value.trim();
+    const review = document.getElementById('input-review').value.trim();
+
+    // Simple validation
+    if (!album || !artist || !review || currentRating === 0) {
+      showToast('Please fill in all fields + rating');
+      return;
+    }
+
+    // Success — clear form
+    document.getElementById('input-album').value  = '';
+    document.getElementById('input-artist').value = '';
+    document.getElementById('input-review').value = '';
+    document.getElementById('input-source').value = '';
+    currentRating = 0;
+    document.querySelectorAll('.star-pick').forEach(s => s.classList.remove('filled'));
+
+    showToast('Review posted! ✦');
+  }
+
+  // ----------------------------
+  // LIKE BUTTON
+  // Toggle like on feed items
+  // ----------------------------
+  function handleLike(btn) {
+    const isLiked = btn.classList.toggle('liked');
+    const icon = btn.querySelector('span');
+    // Get current count and increment/decrement
+    const parts = btn.textContent.trim().split(' ');
+    const count = parseInt(parts[1]) || 0;
+    icon.textContent = isLiked ? '♥' : '♡';
+    btn.childNodes[btn.childNodes.length - 1].textContent = ' ' + (isLiked ? count + 1 : count - 1);
+    btn.style.color = isLiked ? 'var(--accent)' : '';
+  }
+
+  // ----------------------------
+  // TOAST NOTIFICATION
+  // Small popup message
+  // ----------------------------
+  function showToast(message) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+  }
+
+</script>
+</body>
+</html>
